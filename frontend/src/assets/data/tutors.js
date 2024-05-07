@@ -6,7 +6,7 @@ export const tutors = [
   {
     id: "01",
     name: "John Doe",
-    specialization: "Web Development",
+    specialization: "Web",
     avgRating: 4.9,
     totalRating: 120,
     experience: "5 years",
@@ -17,7 +17,7 @@ export const tutors = [
   {
     id: "02",
     name: "Jane Smith",
-    specialization: "Mobile App Development",
+    specialization: "Mobile",
     avgRating: 4.7,
     totalRating: 90,
     experience: "8 years",
