@@ -61,6 +61,7 @@ const Login = () => {
             <Link 
               to="/register" 
               className="text-primaryColor font-medium ml-1">
+                Register
             </Link>
           </p>
         </form>
