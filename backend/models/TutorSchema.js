@@ -1,4 +1,3 @@
-// models/TutorSchema.js
 import mongoose from "mongoose";
 
 const TutorSchema = new mongoose.Schema({
