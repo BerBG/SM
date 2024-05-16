@@ -3,6 +3,16 @@ import Tutor from "../models/TutorSchema.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET_KEY,
+    {
+      expiresIn: "15d",
+    }
+  );
+};
+
 export const register = async (req, res) => {
   const { email, password, name, role, photo, gender } = req.body;
 
@@ -31,7 +41,7 @@ export const register = async (req, res) => {
         password: hashPassword,
         photo,
         gender,
-        role
+        role,
       });
     }
 
@@ -42,20 +52,70 @@ export const register = async (req, res) => {
         password: hashPassword,
         photo,
         gender,
-        role
+        role,
       });
     }
 
-    await user.save()
+    await user.save();
 
-    res.status(200).json({success: true, message: 'User successfully created'})
-
+    res
+      .status(200)
+      .json({ success: true, message: "User successfully created" });
   } catch (err) {
-    res.status(500).json({success:false, message: 'Internal server error, Try again'})
+    res
+      .status(500)
+      .json({ success: false, message: "Internal server error, Try again" });
   }
 };
 
 export const login = async (req, res) => {
+  const { email } = req.body;
+
   try {
-  } catch (err) {}
+    let user = null;
+
+    const student = await User.findOne({ email });
+    const tutor = await Tutor.findOne({ email });
+
+    if (student) {
+      user = student;
+    }
+    if (tutor) {
+      user = tutor;
+    }
+
+    // check if user exist or not
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // compare password
+    const isPasswordMatch = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+
+    if (!isPasswordMatch) {
+      return res
+        .status(400)
+        .json({ status: false, message: "Invalid credentials " });
+    }
+
+    // get toke
+    const token = generateToken(user);
+
+    const { password, role, appointments, ...rest } = user._doc;
+
+    res
+      .status(200)
+      .json({
+        status: true,
+        message: "Successfully login",
+        token,
+        data: { ...rest },
+        role,
+      });
+  } catch (err) {
+    res.status(500).json({ status: false, message: "Failed to login" });
+  }
 };
