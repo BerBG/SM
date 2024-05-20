@@ -1,4 +1,5 @@
 import Tutor from "../models/TutorSchema.js";
+import Booking from "../models/BookingSchema.js";
 
 export const updateTutor = async (req, res) => {
   const id = req.params.id;
@@ -39,7 +40,9 @@ export const getSingleTutor = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const tutor = await Tutor.findById(id).select("-password");
+    const tutor = await Tutor.findById(id)
+      .populate("reviews")
+      .select("-password");
 
     res.status(200).json({
       success: true,
@@ -65,17 +68,42 @@ export const getAllTutor = async (req, res) => {
         ],
       }).select("-password");
     } else {
-      tutors = await Tutor.find({ isApproved: "approved" }).select(
-        "-password"
-      );
+      tutors = await Tutor.find({ isApproved: "approved" }).select("-password");
     }
 
     res.status(200).json({
       success: true,
-      message: "Tutors found",
+      message: "Users found",
       data: tutors,
     });
   } catch (err) {
     res.status(404).json({ success: false, message: "Not found" });
+  }
+};
+
+export const getTutorProfile = async (req, res) => {
+  const tutorId = req.userId;
+
+  try {
+    const tutor = await Tutor.findById(tutorId);
+
+    if (!tutor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Tutor not found" });
+    }
+
+    const { password, ...rest } = tutor._doc;
+    const appointments = await Booking.find({tutor: tutorId})
+
+    res.status(200).json({
+      success: true,
+      message: "Profile info is getting",
+      data: { ...rest, appointments },
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, message: "Something went wrong, cannot get" });
   }
 };

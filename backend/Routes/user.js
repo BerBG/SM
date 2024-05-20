@@ -5,13 +5,17 @@ import {
   deleteUser,
   getAllUser,
   getSingleUser,
+  getUserProfile,
+  getMyAppointments
 } from "../Controllers/userController.js";
 
 const router = express.Router();
 
 router.get("/:id", authenticate, restrict(['student']), getSingleUser);
-router.get("/", restrict(['admin']), getAllUser);
-router.put("/:id", restrict(['student']), updateUser);
-router.delete("/:id", restrict(['student']), deleteUser);
+router.get("/", authenticate, restrict(['admin']), getAllUser);
+router.put("/:id", authenticate, restrict(['student']), updateUser);
+router.delete("/:id", authenticate, restrict(['student']), deleteUser);
+router.get("/profile/me", authenticate, restrict(['student']), getUserProfile);
+router.get("appointments/my-appointments", authenticate, restrict(['student']), getMyAppointments);
 
 export default router;
