@@ -16,6 +16,6 @@ router.get("/", authenticate, restrict(['admin']), getAllUser);
 router.put("/:id", authenticate, restrict(['student']), updateUser);
 router.delete("/:id", authenticate, restrict(['student']), deleteUser);
 router.get("/profile/me", authenticate, restrict(['student']), getUserProfile);
-router.get("appointments/my-appointments", authenticate, restrict(['student']), getMyAppointments);
+router.get("/appointments/my-appointments", authenticate, restrict(['student']), getMyAppointments);
 
 export default router;
