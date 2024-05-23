@@ -162,7 +162,7 @@ const SignUp = () => {
                     <img
                       src={previewURL}
                       alt=""
-                      className="w-full rounded-full"
+                      className="w-full h-full object-cover rounded-full"
                     />
                   </figure>
                 )}

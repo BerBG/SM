@@ -1,18 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import uploadImageToCloudinary from "../../utils/uploadCloudinary.js";
 import { BASE_URL, token } from "../../config.js";
 import { toast } from "react-toastify";
 import HashLoader from "react-spinners/HashLoader";
+import { authContext } from "../../context/AuthContext";
 
 const Profile = ({ user }) => {
+  const { dispatch } = useContext(authContext);
   const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    photo: selectedFile,
+    photo: "",
     gender: "",
     level: "",
   });
@@ -21,16 +23,16 @@ const Profile = ({ user }) => {
 
   useEffect(() => {
     setFormData({
-      name: user.name,
-      email: user.email,
-      photo: user.photo,
-      gender: user.gender,
-      level: user.level
+      name: user.name || "",
+      email: user.email || "",
+      photo: user.photo || "",
+      gender: user.gender || "",
+      level: user.level || "",
     });
   }, [user]);
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value || "" });
   };
 
   const handleFileInputChange = async (event) => {
@@ -39,7 +41,7 @@ const Profile = ({ user }) => {
     const data = await uploadImageToCloudinary(file);
 
     setSelectedFile(data.url);
-    setFormData({ ...formData, photo: data.url });
+    setFormData({ ...formData, photo: data.url || "" });
   };
 
   const submitHandler = async (event) => {
@@ -51,22 +53,25 @@ const Profile = ({ user }) => {
         method: "put",
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
 
-      const { message } = await res.json();
+      const { message, data: updatedUser } = await res.json();
 
       if (!res.ok) {
         throw new Error(message);
       }
 
+      // Atualizar o estado global do usuário
+      dispatch({ type: "UPDATE_USER", payload: updatedUser });
+
       setLoading(false);
       toast.success(message);
       navigate("/users/profile/me");
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      toast.error(err.message);
       setLoading(false);
     }
   };
@@ -84,8 +89,7 @@ const Profile = ({ user }) => {
             className="w-full px-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none
     focus:border-b-primaryColor text-[16px] leading-7 text-headingColor
     placeholder:text-textColor cursor-pointer"
-            aria-readonly
-            readOnly
+            required
           />
         </div>
         <div className="mb-5">
@@ -98,7 +102,7 @@ const Profile = ({ user }) => {
             className="w-full px-4 py-3 border-b border-solid border-[#0066ff61] focus:outline-none
     focus:border-b-primaryColor text-[16px] leading-7 text-headingColor
     placeholder:text-textColor cursor-pointer"
-            required
+            readOnly
           />
         </div>
         <div className="mb-5">
@@ -172,8 +176,8 @@ const Profile = ({ user }) => {
             <label
               htmlFor="customFile"
               className="absolute top-0 left-0 w-full h-full flex items-center px-[0.75rem] py-[0.375rem]
-          text-[15px] leading-6 overflow-hidden bg-[#0066ff46] text-headingColor 
-          font-semibold rounded-lg truncate cursor-pointer"
+              text-[15px] leading-6 overflow-hidden bg-[#0066ff46] text-headingColor font-semibold
+              rounded-lg truncate cursor-pointer"
             >
               {selectedFile ? selectedFile.name : "Upload Photo"}
             </label>
