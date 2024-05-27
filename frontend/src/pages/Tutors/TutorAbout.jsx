@@ -1,6 +1,6 @@
-import React from "react";
 import { formateDate } from "../../utils/formatDate";
-const TutorAbout = () => {
+
+const TutorAbout = ({name, about, qualifications, experiences}) => {
   return (
     <div>
       <div>
